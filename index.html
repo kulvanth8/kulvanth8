@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recharge Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 95%;
+            max-width: 650px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px #ccc;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            margin-bottom: 24px;
+            background: #f9f9f9;
+            padding: 14px;
+            border-radius: 6px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #444;
+        }
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            box-sizing: border-box;
+        }
+        button[type="submit"], #clearAll {
+            width: 100%;
+            padding: 10px;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 6px;
+        }
+        button[type="submit"]:hover, #clearAll:hover {
+            background: #217dbb;
+        }
+        .danger {
+            background: #e74c3c !important;
+        }
+        .danger:hover {
+            background: #c0392b !important;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fafafa;
+            margin-bottom: 12px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background: #e9e9e9;
+            color: #333;
+        }
+        .action-btn {
+            background: #e67e22;
+            border: none;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .action-btn:hover {
+            background: #d35400;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 6px;
+            }
+            table, th, td {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Recharge Tracker</h1>
+        <form id="rechargeForm" autocomplete="off">
+            <div class="form-group">
+                <label for="mobile">Mobile Number</label>
+                <input type="text" id="mobile" name="mobile" required maxlength="10" pattern="\d{10}" placeholder="e.g. 9876543210">
+            </div>
+            <div class="form-group">
+                <label for="operator">Operator</label>
+                <input type="text" id="operator" name="operator" required placeholder="e.g. Airtel, Jio">
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount</label>
+                <input type="number" id="amount" name="amount" required min="1" placeholder="e.g. 199">
+            </div>
+            <div class="form-group">
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <button type="submit">Add Recharge</button>
+        </form>
+        <h2>Recharge History</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mobile Number</th>
+                    <th>Operator</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="rechargeList">
+                <!-- Recharge records will appear here -->
+            </tbody>
+        </table>
+        <button id="clearAll" class="danger">Clear All</button>
+    </div>
+    <script>
+        // Handle recharge data in localStorage
+        const form = document.getElementById('rechargeForm');
+        const rechargeList = document.getElementById('rechargeList');
+        const clearBtn = document.getElementById('clearAll');
+
+        // Fetch existing data
+        function getRecharges() {
+            return JSON.parse(localStorage.getItem('recharges') || '[]');
+        }
+
+        // Save data
+        function saveRecharges(data) {
+            localStorage.setItem('recharges', JSON.stringify(data));
+        }
+
+        // Render recharge table
+        function renderTable() {
+            const recharges = getRecharges();
+            rechargeList.innerHTML = '';
+            if (recharges.length === 0) {
+                rechargeList.innerHTML = `<tr><td colspan="5" style="color:#888">No recharge records found.</td></tr>`;
+                return;
+            }
+            recharges.forEach((r, idx) => {
+                rechargeList.innerHTML += `
+                    <tr>
+                        <td>${r.mobile}</td>
+                        <td>${r.operator}</td>
+                        <td>₹${r.amount}</td>
+                        <td>${r.date}</td>
+                        <td>
+                            <button class="action-btn" onclick="deleteRecharge(${idx})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Add recharge
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const mobile = form.mobile.value.trim();
+            const operator = form.operator.value.trim();
+            const amount = form.amount.value.trim();
+            const date = form.date.value;
+
+            if (!/^\d{10}$/.test(mobile)) {
+                alert('Please enter a valid 10-digit mobile number.');
+                form.mobile.focus();
+                return;
+            }
+            const recharge = { mobile, operator, amount, date };
+            const recharges = getRecharges();
+            recharges.push(recharge);
+            saveRecharges(recharges);
+            renderTable();
+            form.reset();
+        });
+
+        // Delete recharge
+        window.deleteRecharge = function(idx) {
+            if (confirm('Delete this recharge entry?')) {
+                const recharges = getRecharges();
+                recharges.splice(idx, 1);
+                saveRecharges(recharges);
+                renderTable();
+            }
+        };
+
+        // Clear all
+        clearBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all recharge records?')) {
+                saveRecharges([]);
+                renderTable();
+            }
+        });
+
+        // On load
+        renderTable();
+    </script>
+</body>
+</html>
