@@ -67,11 +67,10 @@ I'm dedicated to creating impactful software and exploring new technologies. Wit
 
 ## 📫 Let's Connect
 
-- **LinkedIn:** [Your LinkedIn Profile](#)
-- **Twitter:** [@YourHandle](#)
-- **Portfolio:** [Your Website](#)
-- **Email:** [your.email@example.com](mailto:your.email@example.com)
-
+- **LinkedIn:** [](#)
+- **Instagram:** [@mallakulvanth](#)
+- **Email:** [kulvanthbhavanishanker@gamil.com]
+- **UPTOskills:** 
 ---
 
 ## 💬 Fun Facts
